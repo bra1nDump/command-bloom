@@ -24,8 +24,9 @@ install, and permissions — following the "Manual build and setup" section of
 README.md.
 ```
 
-Needs macOS 26, Swift 6.2, and an MX Master 4. Setup takes a few minutes; two
-permission toggles in System Settings are the only manual part.
+Needs macOS 26, Swift 6.2, and an MX Master 4. Apple's Command Line Tools are
+enough; full Xcode is not required. Setup takes a few minutes; two permission
+toggles in System Settings are the only manual part.
 
 ## Make it yours
 
@@ -45,22 +46,23 @@ Everything below is what your agent follows — or what you run yourself.
 
 ### Build and sign
 
-macOS ties Input Monitoring and Accessibility grants to the daemon's
-code-signing identity, and SwiftPM's default ad-hoc signature changes on every
-build. Sign the release daemon with a stable identity before installing:
+No paid Apple Developer certificate is needed for local use. In Keychain
+Access, choose **Certificate Assistant → Create a Certificate**, name it
+`CommandBloom Local`, and select **Self Signed Root** and **Code Signing**.
+Use that stable identity so Input Monitoring and Accessibility grants survive
+rebuilds; SwiftPM's default ad-hoc signature changes every time.
 
 ```sh
+xcode-select --install # skip if the Command Line Tools are already installed
 git clone https://github.com/bra1nDump/logi-mx-master-gorgeous-action-ring.git
 cd logi-mx-master-gorgeous-action-ring
 swift build -c release
-codesign --force --sign "YOUR STABLE SIGNING IDENTITY" \
+codesign --force --sign "CommandBloom Local" \
   --identifier com.logiliquid.controls.daemon --options runtime \
   .build/release/logi-liquid-daemon
 ```
 
-`security find-identity -v -p codesigning` lists usable identities. If none
-exist, create a self-signed **Code Signing** certificate in Keychain Access
-(Certificate Assistant → Create a Certificate) and use its name.
+`security find-identity -v -p codesigning` lists usable identities.
 
 ### Take over the Sense Panel and install
 
